@@ -25,7 +25,7 @@ export SA_NAME="hcp-tf-deployer-${ENV}"
 
 # 1. Enable required APIs
 gcloud services enable iamcredentials.googleapis.com run.googleapis.com \
-  artifactregistry.googleapis.com compute.googleapis.com \
+  artifactregistry.googleapis.com compute.googleapis.com cloudkms.googleapis.com \
   --project="${PROJECT_ID}"
 
 # 2. Create the Workload Identity Pool
@@ -53,7 +53,7 @@ SA_EMAIL="${SA_NAME}@${PROJECT_ID}.iam.gserviceaccount.com"
 
 for ROLE in roles/run.admin roles/artifactregistry.admin \
             roles/compute.networkAdmin roles/iam.serviceAccountUser \
-            roles/iam.serviceAccountAdmin; do
+            roles/iam.serviceAccountAdmin roles/cloudkms.admin; do
   gcloud projects add-iam-policy-binding "${PROJECT_ID}" \
     --member="serviceAccount:${SA_EMAIL}" \
     --role="${ROLE}"

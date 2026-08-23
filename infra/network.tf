@@ -2,9 +2,9 @@
 
 resource "google_compute_network" "vpc" {
   project                 = var.project_id
-  name                    = "gcphub-${var.environment}-vpc01"
-  auto_create_subnetworks = false
-  routing_mode            = "REGIONAL"
+  name                     = "gcphub-${var.environment}-vpc01"
+  auto_create_subnetworks  = false
+  routing_mode             = "REGIONAL"
 }
 
 resource "google_compute_subnetwork" "subnet" {
@@ -14,6 +14,14 @@ resource "google_compute_subnetwork" "subnet" {
   region                   = var.region
   network                  = google_compute_network.vpc.id
   private_ip_google_access = true # lets resources reach Google APIs without public IPs
+
+  # VPC Flow Logs — fixes Checkov CKV_GCP_26. Useful for real traffic
+  # visibility and required for most compliance baselines.
+  log_config {
+    aggregation_interval = "INTERVAL_5_SEC"
+    flow_sampling        = 0.5
+    metadata             = "INCLUDE_ALL_METADATA"
+  }
 }
 
 # Allows internal traffic within the subnet (adjust/narrow further if you add more services)
