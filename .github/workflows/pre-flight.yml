@@ -1,0 +1,74 @@
+name: pre-flight
+
+# Runs on every PR into dev or main. This job NEVER applies infrastructure —
+# HCP Terraform owns plan/apply. This is purely the commit-time error and
+# dependency check gate (Phase 20.3).
+
+on:
+  pull_request:
+    branches: [dev, main]
+    paths:
+      - "infra/**"
+      - ".github/workflows/pre-flight.yml"
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  validate:
+    name: Format, Validate & Lock-File Check
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: infra
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.9.5"
+          terraform_wrapper: false
+
+      - name: terraform fmt check
+        run: terraform fmt -check -recursive
+
+      - name: terraform init (no backend)
+        run: terraform init -backend=false
+
+      - name: terraform validate
+        run: terraform validate
+
+      - name: Verify provider lock file is current
+        run: |
+          terraform providers lock -platform=linux_amd64
+          git diff --exit-code .terraform.lock.hcl || \
+            (echo "::error::.terraform.lock.hcl is out of date — run 'terraform providers lock' locally and commit it." && exit 1)
+
+  tflint:
+    name: TFLint
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: infra
+    steps:
+      - uses: actions/checkout@v4
+      - uses: terraform-linters/setup-tflint@v4
+      - name: tflint init
+        run: tflint --init
+      - name: tflint run
+        run: tflint --recursive
+
+  checkov:
+    name: Checkov Security Scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run Checkov
+        uses: bridgecrewio/checkov-action@master
+        with:
+          directory: infra
+          framework: terraform
+          soft_fail: false
+          quiet: true
