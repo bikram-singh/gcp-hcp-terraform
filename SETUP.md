@@ -24,8 +24,9 @@ export PROVIDER_ID="hcp-terraform-provider"
 export SA_NAME="hcp-tf-deployer-${ENV}"
 
 # 1. Enable required APIs
-gcloud services enable iamcredentials.googleapis.com run.googleapis.com \
-  artifactregistry.googleapis.com compute.googleapis.com cloudkms.googleapis.com \
+gcloud services enable iamcredentials.googleapis.com iam.googleapis.com \
+  run.googleapis.com artifactregistry.googleapis.com compute.googleapis.com \
+  cloudkms.googleapis.com cloudresourcemanager.googleapis.com \
   --project="${PROJECT_ID}"
 
 # 2. Create the Workload Identity Pool
@@ -52,8 +53,9 @@ gcloud iam service-accounts create "${SA_NAME}" \
 SA_EMAIL="${SA_NAME}@${PROJECT_ID}.iam.gserviceaccount.com"
 
 for ROLE in roles/run.admin roles/artifactregistry.admin \
-            roles/compute.networkAdmin roles/iam.serviceAccountUser \
-            roles/iam.serviceAccountAdmin roles/cloudkms.admin; do
+            roles/compute.networkAdmin roles/compute.securityAdmin \
+            roles/iam.serviceAccountUser roles/iam.serviceAccountAdmin \
+            roles/cloudkms.admin; do
   gcloud projects add-iam-policy-binding "${PROJECT_ID}" \
     --member="serviceAccount:${SA_EMAIL}" \
     --role="${ROLE}"
@@ -83,7 +85,7 @@ Save both printed values for each environment — you'll paste them into the mat
 
 ## Step 4 — Create the two workspaces
 
-Repeat for `gcphub-dev-cloudrun` and `gcphub-prod-cloudrun`:
+Repeat for `gcphub-dev` and `gcphub-prod`:
 
 1. **New → Workspace → Version control workflow** → select the connected `gcp-hcp-terraform` repo.
 2. **Advanced options:**
