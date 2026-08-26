@@ -14,15 +14,10 @@ plugin "terraform" {
   preset  = "recommended"
 }
 
-# GCP-specific rules worth enforcing explicitly
-rule "google_compute_instance_invalid_machine_type" {
-  enabled = true
-}
-
-rule "google_compute_network_invalid_auto_create_subnetworks" {
-  enabled = true
-}
-
+# GCP-specific checks come from the google plugin's default ruleset above.
+# The two explicit rules below are real, bundled Terraform-plugin rules;
+# they're listed explicitly (rather than left to the preset) because they're
+# worth calling out deliberately.
 rule "terraform_deprecated_index" {
   enabled = true
 }
