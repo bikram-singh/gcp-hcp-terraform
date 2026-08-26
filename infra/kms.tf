@@ -24,10 +24,19 @@ resource "google_kms_crypto_key" "repo_key" {
   }
 }
 
-# Artifact Registry's own Google-managed service agent needs permission to
-# use this key for encrypt/decrypt. Without this binding, pushes/pulls fail.
+# Artifact Registry's Google-managed service agent doesn't exist by default
+# until explicitly provisioned — this creates it declaratively instead of
+# assuming it already exists (that assumption caused a failed apply once).
+resource "google_project_service_identity" "artifact_registry_sa" {
+  provider = google-beta
+  project  = var.project_id
+  service  = "artifactregistry.googleapis.com"
+}
+
+# The service agent then needs permission to use this key for encrypt/decrypt.
+# Without this binding, pushes/pulls to the repo fail.
 resource "google_kms_crypto_key_iam_member" "ar_service_agent" {
   crypto_key_id = google_kms_crypto_key.repo_key.id
   role          = "roles/cloudkms.cryptoKeyEncrypterDecrypter"
-  member        = "serviceAccount:service-${data.google_project.current.number}@gcp-sa-artifactregistry.iam.gserviceaccount.com"
+  member        = google_project_service_identity.artifact_registry_sa.member
 }
