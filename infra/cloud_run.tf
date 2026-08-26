@@ -34,6 +34,15 @@ resource "google_cloud_run_v2_service" "service" {
     }
   }
 
+  # A top-level `scaling` block (separate from template.scaling above) was
+  # added to this resource's schema in a recent provider version. GCP's API
+  # returns it populated with defaults even though we never set it, causing
+  # a perpetual, harmless plan diff every run. We manage scaling entirely
+  # via template.scaling, so this field is intentionally ignored.
+  lifecycle {
+    ignore_changes = [scaling]
+  }
+
   depends_on = [google_artifact_registry_repository.repo]
 }
 
