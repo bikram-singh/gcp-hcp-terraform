@@ -1,0 +1,27 @@
+version: 2
+updates:
+  # Keep GitHub Actions versions (e.g. actions/checkout@v4, hashicorp/setup-terraform@v3) current
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "github-actions"
+    commit-message:
+      prefix: "ci"
+
+  # Keep Terraform provider version constraints (required_providers in versions.tf) current
+  - package-ecosystem: "terraform"
+    directory: "/infra"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "terraform"
+    commit-message:
+      prefix: "terraform"
