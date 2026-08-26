@@ -81,7 +81,7 @@ jobs:
         with:
           fetch-depth: 0 # gitleaks needs full history to scan all commits in the PR
       - name: Run gitleaks
-        uses: gitleaks/gitleaks-action@v2
+        uses: gitleaks/gitleaks-action@v3
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           # Public repo — no GITLEAKS_LICENSE needed. If this repo ever goes
