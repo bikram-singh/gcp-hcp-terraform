@@ -2,10 +2,6 @@
 # Customer-managed encryption key (CMEK) for Artifact Registry — fixes
 # Checkov CKV_GCP_84. Uses Cloud KMS instead of Google-managed default keys.
 
-data "google_project" "current" {
-  project_id = var.project_id
-}
-
 resource "google_kms_key_ring" "repo_keyring" {
   project  = var.project_id
   name     = "gcphub-${var.environment}-keyring"
