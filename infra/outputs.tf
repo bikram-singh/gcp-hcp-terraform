@@ -11,11 +11,11 @@ output "artifact_registry_repo" {
 }
 
 output "vpc_name" {
-  value = google_compute_network.vpc.name
+  value = module.network.vpc_name
 }
 
 output "subnet_name" {
-  value = google_compute_subnetwork.subnet.name
+  value = module.network.subnet_name
 }
 
 output "cloud_run_service_account" {
