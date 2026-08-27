@@ -1,63 +1,24 @@
 # cloud_run.tf
+# Cloud Run service, runtime IAM, and the health-check block are now
+# provisioned via the published private-registry module instead of declared
+# inline here. Module source:
+# https://github.com/bikram-singh/terraform-google-cloud-run-service
 
-resource "google_cloud_run_v2_service" "service" {
-  project  = var.project_id
-  name     = "gcphub-${var.environment}-run-svc01"
-  location = var.region
-  labels   = var.labels
+module "cloud_run" {
+  # checkov:skip=CKV_TF_1:Private-registry module (app.terraform.io), version-pinned
+  # via semver ("~> 1.0"), not a git-hosted source -- commit-hash pinning doesn't apply.
+  source  = "app.terraform.io/gcpcloudhub/cloud-run-service/google"
+  version = "~> 1.0"
 
-  template {
-    service_account = google_service_account.cloud_run_sa.email
-
-    scaling {
-      min_instance_count = var.min_instances
-      max_instance_count = var.environment == "prod" ? 10 : 3
-    }
-
-    containers {
-      image = var.container_image
-
-      resources {
-        limits = {
-          cpu    = "1"
-          memory = "512Mi"
-        }
-      }
-    }
-
-    vpc_access {
-      network_interfaces {
-        network    = module.network.vpc_id
-        subnetwork = module.network.subnet_id
-      }
-      egress = "PRIVATE_RANGES_ONLY"
-    }
-  }
-
-  # A top-level `scaling` block (separate from template.scaling above) was
-  # added to this resource's schema in a recent provider version. GCP's API
-  # returns it populated with defaults even though we never set it, causing
-  # a perpetual, harmless plan diff every run. We manage scaling entirely
-  # via template.scaling, so this field is intentionally ignored.
-  lifecycle {
-    ignore_changes = [scaling]
-  }
+  project_id      = var.project_id
+  region          = var.region
+  environment     = var.environment
+  labels          = var.labels
+  container_image = var.container_image
+  min_instances   = var.min_instances
+  allow_public    = var.allow_public
+  network_id      = module.network.vpc_id
+  subnet_id       = module.network.subnet_id
 
   depends_on = [module.registry]
-}
-
-# Continuous validation check (Phase 16) â€” asserts the service has a URL
-# assigned post-apply. HCP Terraform re-evaluates this on a schedule
-# independent of the next plan/apply.
-check "cloud_run_healthy" {
-  data "google_cloud_run_v2_service" "service_check" {
-    project  = var.project_id
-    location = var.region
-    name     = google_cloud_run_v2_service.service.name
-  }
-
-  assert {
-    condition     = data.google_cloud_run_v2_service.service_check.uri != ""
-    error_message = "Cloud Run service ${google_cloud_run_v2_service.service.name} has no assigned URL."
-  }
 }

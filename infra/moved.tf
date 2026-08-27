@@ -53,3 +53,28 @@ moved {
   from = google_artifact_registry_repository.repo
   to   = module.registry.google_artifact_registry_repository.repo
 }
+
+# --- Cloud Run service migration (terraform-google-cloud-run-service) ---
+# public_invoker has no moved block: allow_public defaults to false in both
+# dev and prod, so count = 0 and it was never created — nothing exists in
+# state to move.
+
+moved {
+  from = google_service_account.cloud_run_sa
+  to   = module.cloud_run.google_service_account.cloud_run_sa
+}
+
+moved {
+  from = google_project_iam_member.run_sa_logging
+  to   = module.cloud_run.google_project_iam_member.run_sa_logging
+}
+
+moved {
+  from = google_project_iam_member.run_sa_metrics
+  to   = module.cloud_run.google_project_iam_member.run_sa_metrics
+}
+
+moved {
+  from = google_cloud_run_v2_service.service
+  to   = module.cloud_run.google_cloud_run_v2_service.service
+}
