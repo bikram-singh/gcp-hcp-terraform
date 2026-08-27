@@ -1,4 +1,4 @@
-﻿# kms.tf
+# kms.tf
 # KMS key, service identity, IAM binding, and the CMEK-encrypted Artifact
 # Registry repository are now provisioned via the published private-registry
 # module instead of declared inline here â€” see
