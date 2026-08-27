@@ -1,4 +1,4 @@
-﻿# moved.tf
+# moved.tf
 # Maps the root-level resources that used to live directly in network.tf to
 # their new addresses inside module.network, published as a private-registry
 # module (terraform-google-vpc-subnet). Without these blocks, Terraform would

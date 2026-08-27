@@ -1,4 +1,4 @@
-﻿# outputs.tf
+# outputs.tf
 
 output "cloud_run_url" {
   description = "Public/internal URL of the deployed Cloud Run service"

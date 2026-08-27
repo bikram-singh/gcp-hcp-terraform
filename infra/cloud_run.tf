@@ -1,4 +1,4 @@
-﻿# cloud_run.tf
+# cloud_run.tf
 
 resource "google_cloud_run_v2_service" "service" {
   project  = var.project_id
