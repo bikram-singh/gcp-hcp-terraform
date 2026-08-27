@@ -1,4 +1,4 @@
-# cloud_run.tf
+﻿# cloud_run.tf
 
 resource "google_cloud_run_v2_service" "service" {
   project  = var.project_id
@@ -43,10 +43,10 @@ resource "google_cloud_run_v2_service" "service" {
     ignore_changes = [scaling]
   }
 
-  depends_on = [google_artifact_registry_repository.repo]
+  depends_on = [module.registry]
 }
 
-# Continuous validation check (Phase 16) — asserts the service has a URL
+# Continuous validation check (Phase 16) â€” asserts the service has a URL
 # assigned post-apply. HCP Terraform re-evaluates this on a schedule
 # independent of the next plan/apply.
 check "cloud_run_healthy" {
