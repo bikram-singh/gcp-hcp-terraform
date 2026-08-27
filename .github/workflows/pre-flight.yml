@@ -7,9 +7,6 @@ name: pre-flight
 on:
   pull_request:
     branches: [dev, main]
-    paths:
-      - "infra/**"
-      - ".github/workflows/pre-flight.yml"
 
 permissions:
   contents: read
