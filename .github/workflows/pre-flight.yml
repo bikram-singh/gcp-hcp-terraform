@@ -30,6 +30,11 @@ jobs:
         with:
           terraform_version: "1.9.5"
           terraform_wrapper: false
+          # Required to authenticate to app.terraform.io and fetch the
+          # private-registry module (terraform-google-vpc-subnet) referenced
+          # in network.tf. Without this, `terraform init` fails with
+          # "401 Unauthorized" trying to resolve the module.
+          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
 
       - name: terraform fmt check
         run: terraform fmt -check -recursive
