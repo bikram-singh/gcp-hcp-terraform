@@ -27,8 +27,8 @@ resource "google_cloud_run_v2_service" "service" {
 
     vpc_access {
       network_interfaces {
-        network    = google_compute_network.vpc.id
-        subnetwork = google_compute_subnetwork.subnet.id
+        network    = module.network.vpc_id
+        subnetwork = module.network.subnet_id
       }
       egress = "PRIVATE_RANGES_ONLY"
     }
